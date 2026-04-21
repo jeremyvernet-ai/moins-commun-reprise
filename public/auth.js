@@ -13,11 +13,17 @@
     });
 
     if (error) throw error;
+
+    // Le trigger SQL côté Supabase crée déjà le profil automatiquement.
+    // On ne fait pas d'insert/upsert ici pour éviter les conflits.
     return data;
   }
 
   async function signIn({ email, password }) {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
     if (error) throw error;
     return data;
   }
