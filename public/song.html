@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Détail du morceau</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body data-page="song">
+  <header class="topbar">
+    <div class="container nav">
+      <a class="brand" href="/">
+        <div class="logo"></div>
+        <div class="brand-text">
+          <h1>Moins Commun Reprise</h1>
+          <p>Fiche morceau</p>
+        </div>
+      </a>
+      <nav class="nav-links" id="navLinks"></nav>
+    </div>
+  </header>
+
+  <main class="container section">
+    <div id="songDetail"></div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/config.js"></script>
+  <script src="/supabase-app.js"></script>
+</body>
+</html>

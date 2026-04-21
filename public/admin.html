@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Administration</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body data-page="admin">
+  <header class="topbar">
+    <div class="container nav">
+      <a class="brand" href="/">
+        <div class="logo"></div>
+        <div class="brand-text">
+          <h1>Moins Commun Reprise</h1>
+          <p>Panneau d'administration</p>
+        </div>
+      </a>
+      <nav class="nav-links" id="navLinks"></nav>
+    </div>
+  </header>
+
+  <main class="container section">
+    <div id="adminAccessNotice" class="notice">Vérification des droits admin...</div>
+
+    <section class="section hidden" id="adminSection">
+      <div class="stats" id="adminStats"></div>
+
+      <div class="section">
+        <div class="panel">
+          <div class="section-head"><h3>Ajouter un artiste</h3></div>
+          <div class="form-grid">
+            <div class="field span-6"><label>Nom</label><input id="artistName" type="text"></div>
+            <div class="field span-6"><label>Pays</label><input id="artistCountry" type="text"></div>
+            <div class="field span-12"><label>Bio</label><textarea id="artistBio"></textarea></div>
+          </div>
+          <div class="actions"><button class="btn" id="createArtistBtn">Ajouter l'artiste</button></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="panel">
+          <div class="section-head"><h3>Ajouter un morceau</h3></div>
+          <div class="form-grid">
+            <div class="field span-6"><label>Titre</label><input id="songTitle" type="text"></div>
+            <div class="field span-6"><label>Artiste</label><select id="songArtist"></select></div>
+            <div class="field span-3"><label>Année</label><input id="songYear" type="number"></div>
+            <div class="field span-3"><label>Genre</label><input id="songGenre" type="text"></div>
+            <div class="field span-6"><label>URL YouTube</label><input id="songYoutube" type="url"></div>
+            <div class="field span-12"><label>Description</label><textarea id="songDescription"></textarea></div>
+            <div class="field span-12"><label>Pochette</label><input id="songCover" type="file" accept="image/*"></div>
+          </div>
+          <div class="actions"><button class="btn" id="createSongBtn">Ajouter le morceau</button></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="panel">
+          <div class="section-head"><h3>Ajouter une relation</h3></div>
+          <div class="form-grid">
+            <div class="field span-4"><label>Morceau source</label><select id="relationSource"></select></div>
+            <div class="field span-4"><label>Type</label>
+              <select id="relationType">
+                <option value="sampled">sampled</option>
+                <option value="covered">covered</option>
+                <option value="interpolated">interpolated</option>
+                <option value="remixed">remixed</option>
+              </select>
+            </div>
+            <div class="field span-4"><label>Morceau cible</label><select id="relationTarget"></select></div>
+            <div class="field span-12"><label>Note</label><textarea id="relationNote"></textarea></div>
+          </div>
+          <div class="actions"><button class="btn" id="createRelationBtn">Ajouter la relation</button></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="panel">
+          <div class="section-head"><h3>Catalogue</h3></div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th>Morceau</th><th>Artiste</th><th>Année</th><th>Genre</th><th>Action</th></tr></thead>
+              <tbody id="adminSongsTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/config.js"></script>
+  <script src="/supabase-app.js"></script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mon compte</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body data-page="account">
+  <header class="topbar">
+    <div class="container nav">
+      <a class="brand" href="/">
+        <div class="logo"></div>
+        <div class="brand-text">
+          <h1>Moins Commun Reprise</h1>
+          <p>Mon compte</p>
+        </div>
+      </a>
+      <nav class="nav-links" id="navLinks"></nav>
+    </div>
+  </header>
+
+  <main class="container section">
+    <div class="stats" id="accountStats"></div>
+    <div class="section">
+      <div class="section-head">
+        <div>
+          <h3>Mes favoris</h3>
+          <p class="muted">Retrouve ici les morceaux que tu as sauvegardés.</p>
+        </div>
+      </div>
+      <div class="cards" id="favoritesGrid"></div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/config.js"></script>
+  <script src="/supabase-app.js"></script>
+</body>
+</html>
