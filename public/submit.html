@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Ajouter un morceau</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/config.js"></script>
+  <script defer src="/app.js"></script>
+</head>
+<body data-page="submit">
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="/">
+        <div class="brand-logo" aria-hidden="true"></div>
+        <div class="brand-copy">
+          <h1>MOINS COMMUN</h1>
+          <p>Samples, reprises, remixes et connexions musicales</p>
+        </div>
+      </a>
+      <nav class="nav" data-user-nav></nav>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="container">
+      <div class="page-header">
+        <h2>Proposer un morceau</h2>
+        <p>Les propositions passent par une file de validation admin avant publication.</p>
+      </div>
+      <div id="submitStatus"></div>
+      <form id="submissionForm" class="card form-grid">
+        <div class="form-grid" style="grid-template-columns:1.5fr 1fr 1fr;">
+          <div><label>Titre</label><input id="title" required></div>
+          <div><label>Artiste existant</label><select id="artistId"></select></div>
+          <div><label>Ou nom de l'artiste</label><input id="artistNameText" placeholder="si absent de la base"></div>
+        </div>
+        <div class="form-grid" style="grid-template-columns:1fr 1fr 1.3fr;">
+          <div><label>Année</label><input id="releaseYear" type="number"></div>
+          <div><label>Genre</label><input id="genre" placeholder="Hip-Hop, Pop, House…"></div>
+          <div><label>URL pochette</label><input id="coverUrl" type="url" placeholder="https://..."></div>
+        </div>
+        <div><label>Description</label><textarea id="description" placeholder="Pourquoi ce morceau mérite sa place ?"></textarea></div>
+        <hr class="sep">
+        <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+          <div><label>Type de relation</label><select id="relationType"></select></div>
+          <div><label>Morceau lié</label><select id="relatedSongId"></select></div>
+        </div>
+        <div class="row right">
+          <button class="btn" type="submit">Envoyer la proposition</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">© 2026 Moins Commun — Base musicale collaborative</div>
+  </footer>
+</body>
+</html>

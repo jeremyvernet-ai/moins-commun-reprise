@@ -1,48 +1,61 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Connexion</title>
-  <link rel="stylesheet" href="/styles.css" />
-</head>
-<body data-page="login">
-  <div class="auth-layout">
-    <div class="panel">
-      <a class="brand" href="/" style="margin-bottom:18px;display:flex;">
-        <div class="logo"></div>
-        <div class="brand-text">
-          <h1>Moins Commun Reprise</h1>
-          <p>Connexion / inscription</p>
-        </div>
-      </a>
-
-      <div class="search-grid">
-        <div class="field span-6">
-          <label>Email</label>
-          <input id="authEmail" type="email" placeholder="ton@email.com" />
-        </div>
-        <div class="field span-6">
-          <label>Mot de passe</label>
-          <input id="authPassword" type="password" placeholder="••••••••" />
-        </div>
-        <div class="field span-12">
-          <label>Nom d'utilisateur</label>
-          <input id="authUsername" type="text" placeholder="uniquement pour l'inscription" />
-        </div>
-      </div>
-
-      <div class="actions">
-        <button class="btn" id="loginBtn">Se connecter</button>
-        <button class="btn secondary" id="signupBtn">Créer un compte</button>
-      </div>
-
-      <div id="authNotice" class="notice" style="margin-top:16px;">Connecte-toi pour gérer tes favoris. Un compte admin peut accéder au panneau d'administration.</div>
-    </div>
-  </div>
-
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="stylesheet" href="/styles.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/config.js"></script>
-  <script src="/supabase-app.js"></script>
+  <script defer src="/app.js"></script>
+</head>
+<body data-page="login">
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="/">
+        <div class="brand-logo" aria-hidden="true"></div>
+        <div class="brand-copy">
+          <h1>MOINS COMMUN</h1>
+          <p>Samples, reprises, remixes et connexions musicales</p>
+        </div>
+      </a>
+      <nav class="nav" data-user-nav></nav>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="container">
+      <div class="page-header">
+        <h2>Connexion</h2>
+        <p>Crée un compte pour proposer des morceaux, gérer tes favoris et accéder à ton espace.</p>
+      </div>
+      <div id="authStatus"></div>
+      <div class="auth-grid">
+        <section class="card">
+          <h3>Se connecter</h3>
+          <form id="loginForm" class="list">
+            <div><label>Email</label><input id="loginEmail" type="email" required></div>
+            <div><label>Mot de passe</label><input id="loginPassword" type="password" required></div>
+            <button class="btn" type="submit">Connexion</button>
+          </form>
+        </section>
+        <section class="card">
+          <h3>Créer un compte</h3>
+          <form id="signupForm" class="list">
+            <div><label>Pseudo</label><input id="signupUsername" required></div>
+            <div><label>Email</label><input id="signupEmail" type="email" required></div>
+            <div><label>Mot de passe</label><input id="signupPassword" type="password" minlength="6" required></div>
+            <button class="btn success" type="submit">Inscription</button>
+          </form>
+          <p class="helper">Tu pourras ensuite ajouter des favoris et proposer des morceaux au catalogue.</p>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">© 2026 Moins Commun — Base musicale collaborative</div>
+  </footer>
 </body>
 </html>

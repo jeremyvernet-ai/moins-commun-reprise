@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Fiche morceau</title>
+  <title>Favoris</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link rel="stylesheet" href="/styles.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/config.js"></script>
   <script defer src="/app.js"></script>
 </head>
-<body data-page="song">
+<body data-page="favorites">
   <header class="topbar">
     <div class="container topbar-inner">
       <a class="brand" href="/">
@@ -26,28 +26,11 @@
 
   <main class="section">
     <div class="container">
-      <div class="song-layout">
-        <aside class="song-side">
-          <div class="card">
-            <div id="songCover" class="cover"><span>?</span></div>
-            <button id="songFavorite" class="btn secondary favorite-toggle" data-song-id="">♡ Ajouter aux favoris</button>
-          </div>
-        </aside>
-        <section class="list">
-          <div class="card">
-            <h2 id="songTitle">Chargement…</h2>
-            <div id="songMeta" class="row"></div>
-            <p id="songDescription"></p>
-          </div>
-          <div class="card">
-            <div class="spread">
-              <h3>Relations</h3>
-              <a class="btn small secondary" href="/submit">Proposer une relation</a>
-            </div>
-            <div id="relationshipsList" class="list"></div>
-          </div>
-        </section>
+      <div class="page-header">
+        <h2>Mes favoris</h2>
+        <p>Retrouve les titres que tu veux garder sous la main.</p>
       </div>
+      <div id="favoritesGrid" class="grid"></div>
     </div>
   </main>
 

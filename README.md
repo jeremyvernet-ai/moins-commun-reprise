@@ -1,101 +1,45 @@
-# Moins Commun Reprise — version spéciale déploiement gratuit
+# Moins Commun Reprise v4
 
-Cette version est pensée pour un déploiement **gratuit** avec :
-
-- **Vercel** pour le site public statique
-- **Supabase** pour la base de données, l'authentification et le stockage des images
-
-## Pourquoi cette version ?
-
-Ton ancienne version locale utilisait un serveur Node + SQLite + uploads locaux.
-Pour un déploiement gratuit, ce n'est pas idéal, parce que le stockage local n'est pas fiable sur la plupart des offres gratuites.
-
-Ici, tout repose sur Supabase :
-
-- base Postgres hébergée
-- comptes utilisateurs
+Version 4 du site avec :
+- ajout de morceaux depuis le site
+- panneau d'administration
 - favoris
-- upload de pochettes via Storage
-- panneau admin protégé par les règles RLS
+- relations entre morceaux
+- suppression du texte « version spéciale déploiement gratuit »
 
-## Déploiement recommandé
+## Déploiement rapide
 
-- **Vercel Hobby** est gratuit pour les projets personnels. citeturn461697search0turn461697search3
-- **Supabase Free** propose un projet gratuit pour démarrer. citeturn461697search2turn461697search8
-- **Railway** n'est plus vraiment gratuit au long cours : la doc indique un essai avec crédit puis une offre payante/hobby. citeturn461697search1turn461697search4turn461697search7
+Le projet est statique et fonctionne avec Supabase + Vercel.
 
-## Étapes
-
-### 1. Créer un projet Supabase
-
-Dans Supabase :
-- crée un nouveau projet
-- ouvre l'éditeur SQL
-- colle le contenu de `supabase/schema.sql`
-- exécute le script
-
-Ensuite dans **Storage** :
-- crée un bucket nommé `covers`
-- mets-le en **public**
-
-### 2. Récupérer les clés
-
-Dans Supabase > Settings > API, récupère :
-- `Project URL`
-- `anon public key`
-
-Puis ouvre `public/config.example.js`, duplique-le en `public/config.js` et remplace les valeurs.
-
-### 3. Tester en local
-
-```bash
-cd moins-commun-reprise-deploy-gratuit
-python3 -m http.server 4173 -d public
-```
-
-Ouvre ensuite :
-
-```bash
-http://localhost:4173
-```
-
-### 4. Déployer sur Vercel
-
-- crée un dépôt GitHub
-- envoie ce projet dessus
-- importe le dépôt dans Vercel
-- le dossier racine peut rester tel quel
-- le site sera déployé automatiquement
-
-## Créer un compte admin
-
-1. crée un compte depuis `/login`
-2. dans Supabase, ouvre la table `profiles`
-3. passe la colonne `is_admin` à `true` pour ton utilisateur
-
-Ensuite ton compte verra `/admin` avec les formulaires de gestion.
-
-## Ce que fait cette version
-
-- page d'accueil avec recherche filtrée
-- fiche morceau
-- connexion / inscription
-- espace compte
-- favoris
-- panneau admin
-- gestion artistes / morceaux / relations
-- upload de pochettes dans Supabase Storage
-
-## Limites actuelles
-
-- pas encore d'édition inline ultra avancée
-- pas encore de commentaires
-- pas encore de système de modération multi-rôles
+1. Importe le repo dans Vercel
+2. Garde :
+   - Framework preset : `Other`
+   - Output directory : `public`
+3. Vérifie que `public/config.js` contient tes clés Supabase
+4. Déploie
 
 ## Fichiers importants
 
-- `public/config.example.js` → modèle de config Supabase
-- `public/supabase-app.js` → logique du site
-- `supabase/schema.sql` → schéma complet + politiques de sécurité
+- `public/index.html` : accueil
+- `public/song.html` : fiche morceau
+- `public/login.html` : connexion / inscription
+- `public/submit.html` : proposition d'un morceau
+- `public/favorites.html` : favoris utilisateur
+- `public/admin.html` : panneau admin
+- `supabase/schema-v4.sql` : structure SQL et politiques RLS
+- `docs/email-automatique.md` : mise en place d'un email automatique de bienvenue
 
-Quand tu voudras, on pourra partir de cette base pour construire le vrai site section par section.
+## Email automatique après inscription
+
+Je recommande 2 niveaux :
+
+### Option simple
+Utiliser les emails d'auth Supabase avec :
+- confirmation d'inscription
+- SMTP personnalisé
+- template personnalisé
+
+### Option plus pro
+Créer un **Send Email Hook** ou une **Edge Function** Supabase connectée à Resend pour envoyer un vrai email de bienvenue personnalisé après création du compte.
+
+Voir `docs/email-automatique.md`.

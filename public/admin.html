@@ -1,95 +1,103 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Administration</title>
-  <link rel="stylesheet" href="/styles.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Admin</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/config.js"></script>
+  <script defer src="/app.js"></script>
 </head>
 <body data-page="admin">
   <header class="topbar">
-    <div class="container nav">
+    <div class="container topbar-inner">
       <a class="brand" href="/">
-        <div class="logo"></div>
-        <div class="brand-text">
-          <h1>Moins Commun Reprise</h1>
-          <p>Panneau d'administration</p>
+        <div class="brand-logo" aria-hidden="true"></div>
+        <div class="brand-copy">
+          <h1>MOINS COMMUN</h1>
+          <p>Samples, reprises, remixes et connexions musicales</p>
         </div>
       </a>
-      <nav class="nav-links" id="navLinks"></nav>
+      <nav class="nav" data-user-nav></nav>
     </div>
   </header>
 
-  <main class="container section">
-    <div id="adminAccessNotice" class="notice">Vérification des droits admin...</div>
-
-    <section class="section hidden" id="adminSection">
-      <div class="stats" id="adminStats"></div>
-
-      <div class="section">
-        <div class="panel">
-          <div class="section-head"><h3>Ajouter un artiste</h3></div>
-          <div class="form-grid">
-            <div class="field span-6"><label>Nom</label><input id="artistName" type="text"></div>
-            <div class="field span-6"><label>Pays</label><input id="artistCountry" type="text"></div>
-            <div class="field span-12"><label>Bio</label><textarea id="artistBio"></textarea></div>
-          </div>
-          <div class="actions"><button class="btn" id="createArtistBtn">Ajouter l'artiste</button></div>
-        </div>
+  <main class="section">
+    <div class="container">
+      <div class="page-header">
+        <h2>Panneau d’administration</h2>
+        <p>Gestion des morceaux, artistes, utilisateurs, relations et propositions.</p>
       </div>
 
-      <div class="section">
-        <div class="panel">
-          <div class="section-head"><h3>Ajouter un morceau</h3></div>
-          <div class="form-grid">
-            <div class="field span-6"><label>Titre</label><input id="songTitle" type="text"></div>
-            <div class="field span-6"><label>Artiste</label><select id="songArtist"></select></div>
-            <div class="field span-3"><label>Année</label><input id="songYear" type="number"></div>
-            <div class="field span-3"><label>Genre</label><input id="songGenre" type="text"></div>
-            <div class="field span-6"><label>URL YouTube</label><input id="songYoutube" type="url"></div>
-            <div class="field span-12"><label>Description</label><textarea id="songDescription"></textarea></div>
-            <div class="field span-12"><label>Pochette</label><input id="songCover" type="file" accept="image/*"></div>
+      <div id="adminGate"></div>
+      <div id="adminShell" class="admin-shell hidden">
+        <aside class="admin-sidebar">
+          <div class="tablist">
+            <button class="tab-btn active" data-tab="dashboard">Tableau de bord</button>
+            <button class="tab-btn" data-tab="songs">Morceaux</button>
+            <button class="tab-btn" data-tab="submissions">Propositions</button>
+            <button class="tab-btn" data-tab="artists">Artistes</button>
+            <button class="tab-btn" data-tab="relations">Relations</button>
+            <button class="tab-btn" data-tab="users">Utilisateurs</button>
           </div>
-          <div class="actions"><button class="btn" id="createSongBtn">Ajouter le morceau</button></div>
-        </div>
-      </div>
+          <div id="adminStatus" style="margin-top:16px;"></div>
+        </aside>
 
-      <div class="section">
-        <div class="panel">
-          <div class="section-head"><h3>Ajouter une relation</h3></div>
-          <div class="form-grid">
-            <div class="field span-4"><label>Morceau source</label><select id="relationSource"></select></div>
-            <div class="field span-4"><label>Type</label>
-              <select id="relationType">
-                <option value="sampled">sampled</option>
-                <option value="covered">covered</option>
-                <option value="interpolated">interpolated</option>
-                <option value="remixed">remixed</option>
-              </select>
+        <section class="admin-content">
+          <div id="tab-dashboard" data-tab-panel>
+            <div class="list">
+              <div class="card">
+                <h3>Ajouter un artiste</h3>
+                <form id="adminAddArtistForm" class="list">
+                  <div><label>Nom</label><input id="adminArtistName" required></div>
+                  <div><label>Pays</label><input id="adminArtistCountry"></div>
+                  <div><label>Bio</label><textarea id="adminArtistBio"></textarea></div>
+                  <div class="row right"><button class="btn" type="submit">Ajouter</button></div>
+                </form>
+              </div>
+              <div class="card">
+                <h3>Ajouter une relation</h3>
+                <form id="adminAddRelationForm" class="list">
+                  <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+                    <div><label>Morceau source</label><select id="adminPrimarySong" required></select></div>
+                    <div><label>Morceau lié</label><select id="adminRelatedSong" required></select></div>
+                  </div>
+                  <div><label>Type</label><select id="adminRelationType" required></select></div>
+                  <div><label>Notes</label><textarea id="adminRelationNotes"></textarea></div>
+                  <div class="row right"><button class="btn" type="submit">Créer la relation</button></div>
+                </form>
+              </div>
             </div>
-            <div class="field span-4"><label>Morceau cible</label><select id="relationTarget"></select></div>
-            <div class="field span-12"><label>Note</label><textarea id="relationNote"></textarea></div>
           </div>
-          <div class="actions"><button class="btn" id="createRelationBtn">Ajouter la relation</button></div>
-        </div>
-      </div>
 
-      <div class="section">
-        <div class="panel">
-          <div class="section-head"><h3>Catalogue</h3></div>
-          <div class="table-wrap">
-            <table class="table">
-              <thead><tr><th>Morceau</th><th>Artiste</th><th>Année</th><th>Genre</th><th>Action</th></tr></thead>
-              <tbody id="adminSongsTable"></tbody>
-            </table>
+          <div id="tab-songs" data-tab-panel class="hidden">
+            <div class="table-wrap"><table><thead><tr><th>ID</th><th>Titre</th><th>Artiste</th><th>Statut</th><th>Actions</th></tr></thead><tbody id="songsTableBody"></tbody></table></div>
           </div>
-        </div>
+
+          <div id="tab-submissions" data-tab-panel class="hidden">
+            <div class="table-wrap"><table><thead><tr><th>Titre</th><th>Artiste</th><th>Genre</th><th>Date</th><th>Actions</th></tr></thead><tbody id="submissionsTableBody"></tbody></table></div>
+          </div>
+
+          <div id="tab-artists" data-tab-panel class="hidden">
+            <div class="table-wrap"><table><thead><tr><th>ID</th><th>Nom</th><th>Pays</th><th>Bio</th></tr></thead><tbody id="artistsTableBody"></tbody></table></div>
+          </div>
+
+          <div id="tab-relations" data-tab-panel class="hidden">
+            <div class="table-wrap"><table><thead><tr><th>Source</th><th>Type</th><th>Cible</th><th>Notes</th><th>Action</th></tr></thead><tbody id="relationsTableBody"></tbody></table></div>
+          </div>
+
+          <div id="tab-users" data-tab-panel class="hidden">
+            <div class="table-wrap"><table><thead><tr><th>Pseudo</th><th>Admin</th><th>Créé le</th><th>Action</th></tr></thead><tbody id="usersTableBody"></tbody></table></div>
+          </div>
+        </section>
       </div>
-    </section>
+    </div>
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/config.js"></script>
-  <script src="/supabase-app.js"></script>
+  <footer class="footer">
+    <div class="container">© 2026 Moins Commun — Base musicale collaborative</div>
+  </footer>
 </body>
 </html>
