@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mon profil • Moins Commun</title>
+
+  <style>
+    body { margin:0; font-family: Inter, Arial, sans-serif; background:#090012; color:#f2ecff; }
+    .wrap { max-width: 760px; margin: 40px auto; padding: 24px; }
+    .card { background:linear-gradient(180deg,#291046,#170724); border:1px solid #5c3392; border-radius:24px; padding:24px; }
+    label { display:block; margin-top:14px; }
+    input, textarea, button { width:100%; padding:14px; border-radius:14px; border:1px solid #6e44aa; box-sizing:border-box; }
+    input, textarea { background:#221033; color:#fff; margin-top:8px; }
+    button { background:#a66bff; color:#fff; font-weight:700; cursor:pointer; margin-top:16px; }
+    .status { margin-top:16px; }
+    .error { color:#ff9090; }
+    .avatar { width:96px; height:96px; border-radius:50%; object-fit:cover; display:block; margin:0 0 12px; }
+    .secondary { background:transparent; }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Mon profil</h1>
+
+      <img id="avatar-preview" class="avatar" hidden />
+
+      <form id="profile-form">
+        <label>Email</label>
+        <input id="email" disabled />
+
+        <label>Pseudo</label>
+        <input id="username" required minlength="3" maxlength="24" />
+
+        <label>Bio</label>
+        <textarea id="bio" rows="4"></textarea>
+
+        <label>Photo de profil</label>
+        <input id="avatar" type="file" accept="image/*" />
+
+        <button type="submit">Enregistrer</button>
+      </form>
+
+      <button id="logout-btn" class="secondary">Se déconnecter</button>
+
+      <p id="status" class="status"></p>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+  <script src="profile.js"></script>
+
+</body>
+</html>
