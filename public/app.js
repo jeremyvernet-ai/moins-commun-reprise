@@ -34,8 +34,8 @@ function songHref(id) {
   return `/song?id=${id}`;
 }
 
-function formatCover(url) {
-  return url ? `<img src="${escapeHtml(url)}" alt="">` : '<span>?</span>';
+function formatCover() {
+  return '';
 }
 
 function relationshipLabel(type) {
