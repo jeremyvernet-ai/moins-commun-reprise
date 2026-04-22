@@ -153,7 +153,6 @@ function songCard(song) {
   const isFavorite = state.favorites.has(song.id);
   return `
     <article class="card">
-      <div class="cover">${formatCover(song.cover_url)}</div>
       <div class="spread">
         <div>
           <h3>${escapeHtml(song.title)}</h3>
@@ -287,7 +286,11 @@ async function bootSongPage() {
 
   document.title = `${song.title} — Moins Commun`;
   titleMount.textContent = song.title;
-  coverMount.innerHTML = formatCover(song.cover_url);
+
+  if (coverMount) {
+    coverMount.innerHTML = formatCover(song.cover_url);
+  }
+
   metaMount.innerHTML = `
     <div class="tag">${escapeHtml(song.artist_name || 'Artiste inconnu')}</div>
     <div class="tag">${escapeHtml(song.release_year || '—')}</div>
@@ -458,6 +461,7 @@ async function bootAdminPage() {
   }
   gate.remove();
   shell.classList.remove('hidden');
+
   qsa('.tab-btn').forEach((btn) => btn.addEventListener('click', () => {
     qsa('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
@@ -568,26 +572,42 @@ async function bootAdminPage() {
   document.addEventListener('click', async (event) => {
     const publishBtn = event.target.closest('.admin-song-status');
     if (publishBtn) {
-      const { error } = await supabaseClient.from('songs').update({ status: publishBtn.dataset.status }).eq('id', publishBtn.dataset.id);
-      qs('#adminStatus').innerHTML = error ? `<div class="notice">${escapeHtml(error.message)}</div>` : `<div class="empty-state">Statut mis à jour. Recharge la page admin.</div>`;
+      const { error } = await supabaseClient
+        .from('songs')
+        .update({ status: publishBtn.dataset.status })
+        .eq('id', publishBtn.dataset.id);
+
+      qs('#adminStatus').innerHTML = error
+        ? `<div class="notice">${escapeHtml(error.message)}</div>`
+        : `<div class="empty-state">Statut mis à jour. Recharge la page admin.</div>`;
     }
 
     const deleteBtn = event.target.closest('.admin-song-delete');
     if (deleteBtn && confirm('Supprimer ce morceau ?')) {
       const { error } = await supabaseClient.from('songs').delete().eq('id', deleteBtn.dataset.id);
-      qs('#adminStatus').innerHTML = error ? `<div class="notice">${escapeHtml(error.message)}</div>` : `<div class="empty-state">Morceau supprimé. Recharge la page admin.</div>`;
+      qs('#adminStatus').innerHTML = error
+        ? `<div class="notice">${escapeHtml(error.message)}</div>`
+        : `<div class="empty-state">Morceau supprimé. Recharge la page admin.</div>`;
     }
 
     const roleBtn = event.target.closest('.admin-user-role');
     if (roleBtn) {
-      const { error } = await supabaseClient.from('profiles').update({ is_admin: roleBtn.dataset.admin === 'true' }).eq('id', roleBtn.dataset.id);
-      qs('#adminStatus').innerHTML = error ? `<div class="notice">${escapeHtml(error.message)}</div>` : `<div class="empty-state">Rôle utilisateur mis à jour. Recharge la page admin.</div>`;
+      const { error } = await supabaseClient
+        .from('profiles')
+        .update({ is_admin: roleBtn.dataset.admin === 'true' })
+        .eq('id', roleBtn.dataset.id);
+
+      qs('#adminStatus').innerHTML = error
+        ? `<div class="notice">${escapeHtml(error.message)}</div>`
+        : `<div class="empty-state">Rôle utilisateur mis à jour. Recharge la page admin.</div>`;
     }
 
     const relDelete = event.target.closest('.admin-rel-delete');
     if (relDelete) {
       const { error } = await supabaseClient.from('song_relationships').delete().eq('id', relDelete.dataset.id);
-      qs('#adminStatus').innerHTML = error ? `<div class="notice">${escapeHtml(error.message)}</div>` : `<div class="empty-state">Relation supprimée. Recharge la page admin.</div>`;
+      qs('#adminStatus').innerHTML = error
+        ? `<div class="notice">${escapeHtml(error.message)}</div>`
+        : `<div class="empty-state">Relation supprimée. Recharge la page admin.</div>`;
     }
 
     const approveBtn = event.target.closest('.admin-sub-approve');
@@ -597,8 +617,17 @@ async function bootAdminPage() {
 
     const rejectBtn = event.target.closest('.admin-sub-reject');
     if (rejectBtn) {
-      const { error } = await supabaseClient.from('song_submissions').update({ status: 'rejected' }).eq('id', rejectBtn.dataset.id);
-      qs('#adminStatus').innerHTML = error ? `<div class="notice">${escapeHtml(error.message)}</div>` : `<div class="empty-state">Proposition refusée. Recharge la page admin.</div>`;
+      const { error } = await supabaseClient
+        .from('song_submissions')
+        .update({ status: 'rejected' })
+        .eq('id', rejectBtn.dataset.id);
+
+      if (error) {
+        qs('#adminStatus').innerHTML = `<div class="notice">${escapeHtml(error.message)}</div>`;
+      } else {
+        qs('#adminStatus').innerHTML = `<div class="empty-state">Proposition refusée.</div>`;
+        window.location.reload();
+      }
     }
   });
 }
@@ -677,12 +706,19 @@ async function approveSubmission(submissionId) {
 
   const { error: updateError } = await supabaseClient
     .from('song_submissions')
-    .update({ status: 'approved', approved_song_id: song.id, reviewed_by: state.session.user.id })
+    .update({
+      status: 'approved',
+      approved_song_id: song.id,
+      reviewed_by: state.session.user.id
+    })
     .eq('id', submission.id);
 
-  mount.innerHTML = updateError
-    ? `<div class="notice">${escapeHtml(updateError.message)}</div>`
-    : `<div class="empty-state">Proposition validée. Recharge la page admin.</div>`;
+  if (updateError) {
+    mount.innerHTML = `<div class="notice">${escapeHtml(updateError.message)}</div>`;
+  } else {
+    mount.innerHTML = `<div class="empty-state">Proposition validée.</div>`;
+    window.location.reload();
+  }
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
