@@ -38,15 +38,37 @@ function formatCover() {
   return '';
 }
 
-function relationshipLabel(type) function renderListeningLinks(song) {
+function relationshipLabel(type) {
+  const map = {
+    sampled: 'sample de',
+    sampled_by: 'samplé par',
+    cover_of: 'reprise de',
+    covered_by: 'repris par',
+    remix_of: 'remix de',
+    remixed_by: 'remixé par',
+    interpolation_of: 'interpolation de',
+    interpolated_by: 'interpolé par'
+  };
+  return map[type] || type;
+}
+
+function renderListeningLinks(song) {
   const links = [];
 
   if (song.spotify_url) {
-    links.push(`<a class="btn small" href="${escapeHtml(song.spotify_url)}" target="_blank">Spotify</a>`);
+    links.push(`<a class="btn small" href="${escapeHtml(song.spotify_url)}" target="_blank" rel="noopener">Spotify</a>`);
   }
 
   if (song.youtube_url) {
-    links.push(`<a class="btn small secondary" href="${escapeHtml(song.youtube_url)}" target="_blank">YouTube</a>`);
+    links.push(`<a class="btn small secondary" href="${escapeHtml(song.youtube_url)}" target="_blank" rel="noopener">YouTube</a>`);
+  }
+
+  if (song.apple_music_url) {
+    links.push(`<a class="btn small secondary" href="${escapeHtml(song.apple_music_url)}" target="_blank" rel="noopener">Apple Music</a>`);
+  }
+
+  if (song.soundcloud_url) {
+    links.push(`<a class="btn small secondary" href="${escapeHtml(song.soundcloud_url)}" target="_blank" rel="noopener">SoundCloud</a>`);
   }
 
   return links.length
@@ -60,20 +82,9 @@ function renderPreviewPlayer(song) {
   return `
     <audio controls style="width:100%;">
       <source src="${escapeHtml(song.preview_url)}" type="audio/mpeg">
+      Ton navigateur ne supporte pas l’audio.
     </audio>
   `;
-} {
-  const map = {
-    sampled: 'sample de',
-    sampled_by: 'samplé par',
-    cover_of: 'reprise de',
-    covered_by: 'repris par',
-    remix_of: 'remix de',
-    remixed_by: 'remixé par',
-    interpolation_of: 'interpolation de',
-    interpolated_by: 'interpolé par'
-  };
-  return map[type] || type;
 }
 
 function relationshipOptions() {
@@ -252,11 +263,14 @@ async function bootSongPage() {
   await loadSession();
   const songId = Number(getSearchParam('id'));
   if (!songId) return;
+
   const titleMount = qs('#songTitle');
   const coverMount = qs('#songCover');
   const metaMount = qs('#songMeta');
   const descMount = qs('#songDescription');
   const relationshipsMount = qs('#relationshipsList');
+  const listeningMount = qs('#songListening');
+  const previewMount = qs('#songPreviewPlayer');
 
   const { data: song, error } = await supabaseClient
     .from('song_details')
@@ -266,6 +280,8 @@ async function bootSongPage() {
 
   if (error || !song) {
     titleMount.textContent = 'Morceau introuvable';
+    if (listeningMount) listeningMount.innerHTML = '';
+    if (previewMount) previewMount.innerHTML = '';
     return;
   }
 
@@ -280,6 +296,14 @@ async function bootSongPage() {
   descMount.textContent = song.description || 'Aucune description.';
   qs('#songFavorite').dataset.songId = song.id;
   qs('#songFavorite').textContent = state.favorites.has(song.id) ? '♥ Ajouter aux favoris' : '♡ Ajouter aux favoris';
+
+  if (listeningMount) {
+    listeningMount.innerHTML = renderListeningLinks(song);
+  }
+
+  if (previewMount) {
+    previewMount.innerHTML = renderPreviewPlayer(song);
+  }
 
   const { data: relations } = await supabaseClient
     .from('song_relationships')
@@ -560,6 +584,7 @@ async function bootAdminPage() {
     if (approveBtn) {
       await approveSubmission(approveBtn.dataset.id);
     }
+
     const rejectBtn = event.target.closest('.admin-sub-reject');
     if (rejectBtn) {
       const { error } = await supabaseClient.from('song_submissions').update({ status: 'rejected' }).eq('id', rejectBtn.dataset.id);
@@ -575,6 +600,7 @@ async function approveSubmission(submissionId) {
     .select('*')
     .eq('id', submissionId)
     .maybeSingle();
+
   if (subError || !submission) {
     mount.innerHTML = `<div class="notice">Proposition introuvable.</div>`;
     return;
@@ -582,7 +608,12 @@ async function approveSubmission(submissionId) {
 
   let artistId = submission.artist_id;
   if (!artistId && submission.artist_name_text) {
-    const { data: existingArtist } = await supabaseClient.from('artists').select('id').ilike('name', submission.artist_name_text).maybeSingle();
+    const { data: existingArtist } = await supabaseClient
+      .from('artists')
+      .select('id')
+      .ilike('name', submission.artist_name_text)
+      .maybeSingle();
+
     if (existingArtist?.id) {
       artistId = existingArtist.id;
     } else {
@@ -591,6 +622,7 @@ async function approveSubmission(submissionId) {
         .insert({ name: submission.artist_name_text })
         .select('id')
         .single();
+
       if (newArtistError) {
         mount.innerHTML = `<div class="notice">${escapeHtml(newArtistError.message)}</div>`;
         return;
@@ -608,6 +640,11 @@ async function approveSubmission(submissionId) {
       genre: submission.genre,
       description: submission.description,
       cover_url: submission.cover_url,
+      spotify_url: submission.spotify_url || null,
+      youtube_url: submission.youtube_url || null,
+      apple_music_url: submission.apple_music_url || null,
+      soundcloud_url: submission.soundcloud_url || null,
+      preview_url: submission.preview_url || null,
       status: 'published',
       created_by: state.session.user.id
     })
@@ -633,7 +670,9 @@ async function approveSubmission(submissionId) {
     .update({ status: 'approved', approved_song_id: song.id, reviewed_by: state.session.user.id })
     .eq('id', submission.id);
 
-  mount.innerHTML = updateError ? `<div class="notice">${escapeHtml(updateError.message)}</div>` : `<div class="empty-state">Proposition validée. Recharge la page admin.</div>`;
+  mount.innerHTML = updateError
+    ? `<div class="notice">${escapeHtml(updateError.message)}</div>`
+    : `<div class="empty-state">Proposition validée. Recharge la page admin.</div>`;
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
