@@ -498,6 +498,66 @@ async function bootFavoritesPage() {
     : '<div class="empty-state">Tu n’as encore aucun favori.</div>';
 }
 
+async function openSongEditor(songId) {
+  const { data: song, error } = await supabaseClient
+    .from('songs')
+    .select('*')
+    .eq('id', songId)
+    .maybeSingle();
+
+  if (error || !song) {
+    qs('#adminStatus').innerHTML = `<div class="notice">Impossible de charger le morceau.</div>`;
+    return;
+  }
+
+  qs('#songEditor')?.classList.remove('hidden');
+  qs('#editSongId').value = song.id;
+  qs('#editSongTitle').value = song.title || '';
+  qs('#editSongYear').value = song.release_year || '';
+  qs('#editSongGenre').value = song.genre || '';
+  qs('#editSongDescription').value = song.description || '';
+  qs('#editSongCoverUrl').value = song.cover_url || '';
+  qs('#editSongSpotifyUrl').value = song.spotify_url || '';
+  qs('#editSongYoutubeUrl').value = song.youtube_url || '';
+  qs('#editSongAppleMusicUrl').value = song.apple_music_url || '';
+  qs('#editSongSoundcloudUrl').value = song.soundcloud_url || '';
+  qs('#editSongPreviewUrl').value = song.preview_url || '';
+
+  qs('#songEditor')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function saveSongEdit(e) {
+  e.preventDefault();
+
+  const songId = Number(qs('#editSongId').value);
+
+  const payload = {
+    title: qs('#editSongTitle').value.trim(),
+    release_year: qs('#editSongYear').value ? Number(qs('#editSongYear').value) : null,
+    genre: qs('#editSongGenre').value.trim() || null,
+    description: qs('#editSongDescription').value.trim() || null,
+    cover_url: qs('#editSongCoverUrl').value.trim() || null,
+    spotify_url: qs('#editSongSpotifyUrl').value.trim() || null,
+    youtube_url: qs('#editSongYoutubeUrl').value.trim() || null,
+    apple_music_url: qs('#editSongAppleMusicUrl').value.trim() || null,
+    soundcloud_url: qs('#editSongSoundcloudUrl').value.trim() || null,
+    preview_url: qs('#editSongPreviewUrl').value.trim() || null
+  };
+
+  const { error } = await supabaseClient
+    .from('songs')
+    .update(payload)
+    .eq('id', songId);
+
+  if (error) {
+    qs('#adminStatus').innerHTML = `<div class="notice">${escapeHtml(error.message)}</div>`;
+    return;
+  }
+
+  qs('#adminStatus').innerHTML = `<div class="empty-state">Morceau modifié.</div>`;
+  window.location.reload();
+}
+
 async function bootAdminPage() {
   await loadSession();
 
@@ -539,6 +599,7 @@ async function bootAdminPage() {
       <td>${escapeHtml(song.status || '')}</td>
       <td>
         <div class="row">
+          <button class="btn small secondary admin-song-edit" data-id="${song.id}">Modifier</button>
           <button class="btn small secondary admin-song-status" data-id="${song.id}" data-status="${song.status === 'published' ? 'draft' : 'published'}">
             ${song.status === 'published' ? 'Passer en brouillon' : 'Publier'}
           </button>
@@ -600,6 +661,12 @@ async function bootAdminPage() {
     </tr>
   `).join('') || '<tr><td colspan="5">Aucune proposition</td></tr>';
 
+  qs('#adminEditSongForm')?.addEventListener('submit', saveSongEdit);
+
+  qs('#cancelSongEdit')?.addEventListener('click', () => {
+    qs('#songEditor')?.classList.add('hidden');
+  });
+
   qs('#adminAddArtistForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -633,6 +700,11 @@ async function bootAdminPage() {
   });
 
   document.addEventListener('click', async (event) => {
+    const editBtn = event.target.closest('.admin-song-edit');
+    if (editBtn) {
+      await openSongEditor(editBtn.dataset.id);
+    }
+
     const publishBtn = event.target.closest('.admin-song-status');
     if (publishBtn) {
       const { error } = await supabaseClient
