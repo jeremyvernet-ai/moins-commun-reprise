@@ -38,7 +38,31 @@ function formatCover() {
   return '';
 }
 
-function relationshipLabel(type) {
+function relationshipLabel(type) function renderListeningLinks(song) {
+  const links = [];
+
+  if (song.spotify_url) {
+    links.push(`<a class="btn small" href="${escapeHtml(song.spotify_url)}" target="_blank">Spotify</a>`);
+  }
+
+  if (song.youtube_url) {
+    links.push(`<a class="btn small secondary" href="${escapeHtml(song.youtube_url)}" target="_blank">YouTube</a>`);
+  }
+
+  return links.length
+    ? links.join('')
+    : '<div class="helper">Aucun lien disponible</div>';
+}
+
+function renderPreviewPlayer(song) {
+  if (!song.preview_url) return '';
+
+  return `
+    <audio controls style="width:100%;">
+      <source src="${escapeHtml(song.preview_url)}" type="audio/mpeg">
+    </audio>
+  `;
+} {
   const map = {
     sampled: 'sample de',
     sampled_by: 'samplé par',
