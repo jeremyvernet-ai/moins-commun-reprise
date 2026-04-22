@@ -103,28 +103,33 @@ function relationshipOptions() {
 async function loadSession() {
   const { data } = await supabaseClient.auth.getSession();
   state.session = data.session || null;
+
   if (state.session) {
     const { data: profile } = await supabaseClient
       .from('profiles')
       .select('*')
       .eq('id', state.session.user.id)
       .maybeSingle();
+
     state.profile = profile || null;
     await loadFavorites();
   } else {
     state.profile = null;
     state.favorites = new Set();
   }
+
   renderTopbarUser();
   return state.session;
 }
 
 async function loadFavorites() {
   if (!state.session) return;
+
   const { data, error } = await supabaseClient
     .from('favorites')
     .select('song_id')
     .eq('user_id', state.session.user.id);
+
   if (!error) {
     state.favorites = new Set((data || []).map((f) => f.song_id));
   }
@@ -133,7 +138,9 @@ async function loadFavorites() {
 function renderTopbarUser() {
   const mount = qs('[data-user-nav]');
   if (!mount) return;
+
   const links = [`<a href="/">Accueil</a>`];
+
   if (state.session) {
     links.push(`<a href="/favorites">Favoris</a>`);
     links.push(`<a href="/submit">Ajouter un morceau</a>`);
@@ -142,7 +149,9 @@ function renderTopbarUser() {
   } else {
     links.push(`<a href="/login">Connexion</a>`);
   }
+
   mount.innerHTML = links.join('');
+
   qs('#logoutBtn')?.addEventListener('click', async () => {
     await supabaseClient.auth.signOut();
     location.href = '/';
@@ -151,6 +160,7 @@ function renderTopbarUser() {
 
 function songCard(song) {
   const isFavorite = state.favorites.has(song.id);
+
   return `
     <article class="card">
       <div class="spread">
@@ -176,14 +186,25 @@ async function toggleFavorite(songId) {
     location.href = '/login';
     return;
   }
+
   const id = Number(songId);
+
   if (state.favorites.has(id)) {
-    await supabaseClient.from('favorites').delete().eq('user_id', state.session.user.id).eq('song_id', id);
+    await supabaseClient
+      .from('favorites')
+      .delete()
+      .eq('user_id', state.session.user.id)
+      .eq('song_id', id);
+
     state.favorites.delete(id);
   } else {
-    await supabaseClient.from('favorites').insert({ user_id: state.session.user.id, song_id: id });
+    await supabaseClient
+      .from('favorites')
+      .insert({ user_id: state.session.user.id, song_id: id });
+
     state.favorites.add(id);
   }
+
   qsa(`.favorite-toggle[data-song-id="${id}"]`).forEach((btn) => {
     btn.textContent = state.favorites.has(id) ? '♥' : '♡';
   });
@@ -196,6 +217,7 @@ document.addEventListener('click', (event) => {
 
 async function bootHome() {
   await loadSession();
+
   const mount = qs('#songsGrid');
   const errorMount = qs('#homeError');
   const genreSelect = qs('#genreFilter');
@@ -206,12 +228,14 @@ async function bootHome() {
     .select('genre')
     .eq('status', 'published')
     .order('genre');
+
   const uniqueGenres = [...new Set((genres || []).map((g) => g.genre).filter(Boolean))];
   genreSelect.innerHTML = '<option value="">Tous</option>' + uniqueGenres.map(g => `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`).join('');
 
   async function loadSongs() {
     errorMount.classList.add('hidden');
     mount.innerHTML = '<p class="helper">Chargement…</p>';
+
     let query = supabaseClient
       .from('song_details')
       .select('*')
@@ -226,6 +250,7 @@ async function bootHome() {
     if (year) query = query.eq('release_year', Number(year));
 
     const { data, error } = await query;
+
     if (error) {
       mount.innerHTML = '';
       errorMount.textContent = error.message;
@@ -234,15 +259,22 @@ async function bootHome() {
     }
 
     let rows = data || [];
+
     if (search) {
       const s = search.toLowerCase();
-      rows = rows.filter((row) => [row.title, row.artist_name, row.genre, row.description].join(' ').toLowerCase().includes(s));
+      rows = rows.filter((row) =>
+        [row.title, row.artist_name, row.genre, row.description]
+          .join(' ')
+          .toLowerCase()
+          .includes(s)
+      );
     }
 
     if (!rows.length) {
       mount.innerHTML = '<div class="empty-state">Aucun morceau trouvé.</div>';
       return;
     }
+
     mount.innerHTML = rows.map(songCard).join('');
   }
 
@@ -250,6 +282,7 @@ async function bootHome() {
     e.preventDefault();
     loadSongs();
   });
+
   qs('#resetFilters')?.addEventListener('click', () => {
     qs('#searchForm').reset();
     loadSongs();
@@ -260,6 +293,7 @@ async function bootHome() {
 
 async function bootSongPage() {
   await loadSession();
+
   const songId = Number(getSearchParam('id'));
   if (!songId) return;
 
@@ -296,6 +330,7 @@ async function bootSongPage() {
     <div class="tag">${escapeHtml(song.release_year || '—')}</div>
     <div class="tag">${escapeHtml(song.genre || 'Genre libre')}</div>
   `;
+
   descMount.textContent = song.description || 'Aucune description.';
   qs('#songFavorite').dataset.songId = song.id;
   qs('#songFavorite').textContent = state.favorites.has(song.id) ? '♥ Ajouter aux favoris' : '♡ Ajouter aux favoris';
@@ -332,6 +367,7 @@ async function bootSongPage() {
 
 async function bootLoginPage() {
   await loadSession();
+
   if (state.session) {
     qs('#authStatus').innerHTML = `<div class="empty-state">Tu es déjà connecté avec <strong>${escapeHtml(state.session.user.email)}</strong>.</div>`;
   }
@@ -342,10 +378,12 @@ async function bootLoginPage() {
     const password = qs('#loginPassword').value.trim();
     const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
     const mount = qs('#authStatus');
+
     if (error) {
       mount.innerHTML = `<div class="notice">${escapeHtml(error.message)}</div>`;
       return;
     }
+
     location.href = '/';
   });
 
@@ -355,21 +393,25 @@ async function bootLoginPage() {
     const password = qs('#signupPassword').value.trim();
     const username = qs('#signupUsername').value.trim();
     const mount = qs('#authStatus');
+
     const { error } = await supabaseClient.auth.signUp({
       email,
       password,
       options: { data: { username } }
     });
+
     if (error) {
       mount.innerHTML = `<div class="notice">${escapeHtml(error.message)}</div>`;
       return;
     }
+
     mount.innerHTML = `<div class="empty-state">Compte créé. Vérifie ton email si la confirmation est activée dans Supabase.</div>`;
   });
 }
 
 async function bootSubmitPage() {
   await loadSession();
+
   const mount = qs('#submitStatus');
   if (!state.session) {
     mount.innerHTML = `<div class="notice">Connecte-toi pour proposer un morceau.</div>`;
@@ -425,8 +467,10 @@ async function bootSubmitPage() {
 
 async function bootFavoritesPage() {
   await loadSession();
+
   const mount = qs('#favoritesGrid');
   if (!mount) return;
+
   if (!state.session) {
     mount.innerHTML = '<div class="notice">Connecte-toi pour voir tes favoris.</div>';
     return;
@@ -442,16 +486,21 @@ async function bootFavoritesPage() {
     return;
   }
 
-  const rows = (data || []).map((item) => ({
-    ...item.songs,
-    artist_name: item.songs?.artists?.name
-  })).filter(Boolean);
+  const rows = (data || [])
+    .map((item) => ({
+      ...item.songs,
+      artist_name: item.songs?.artists?.name
+    }))
+    .filter(Boolean);
 
-  mount.innerHTML = rows.length ? rows.map(songCard).join('') : '<div class="empty-state">Tu n’as encore aucun favori.</div>';
+  mount.innerHTML = rows.length
+    ? rows.map(songCard).join('')
+    : '<div class="empty-state">Tu n’as encore aucun favori.</div>';
 }
 
 async function bootAdminPage() {
   await loadSession();
+
   const gate = qs('#adminGate');
   const shell = qs('#adminShell');
 
@@ -459,6 +508,7 @@ async function bootAdminPage() {
     gate.innerHTML = '<div class="notice">Accès admin requis.</div>';
     return;
   }
+
   gate.remove();
   shell.classList.remove('hidden');
 
@@ -472,7 +522,11 @@ async function bootAdminPage() {
   const [songsRes, artistsRes, submissionsRes, relRes, profilesRes] = await Promise.all([
     supabaseClient.from('song_details').select('*').order('created_at', { ascending: false }),
     supabaseClient.from('artists').select('*').order('name'),
-    supabaseClient.from('song_submissions').select('*').order('created_at', { ascending: false }),
+    supabaseClient
+      .from('song_submissions')
+      .select('*')
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false }),
     supabaseClient.from('song_relationships').select('*, primary_song:songs!song_relationships_primary_song_id_fkey(title), related_song:songs!song_relationships_related_song_id_fkey(title)').order('created_at', { ascending: false }),
     supabaseClient.from('profiles').select('*').order('created_at', { ascending: false })
   ]);
@@ -548,17 +602,23 @@ async function bootAdminPage() {
 
   qs('#adminAddArtistForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
+
     const payload = {
       name: qs('#adminArtistName').value.trim(),
       country: qs('#adminArtistCountry').value.trim() || null,
       bio: qs('#adminArtistBio').value.trim() || null
     };
+
     const { error } = await supabaseClient.from('artists').insert(payload);
-    qs('#adminStatus').innerHTML = error ? `<div class="notice">${escapeHtml(error.message)}</div>` : `<div class="empty-state">Artiste ajouté. Recharge la page admin.</div>`;
+
+    qs('#adminStatus').innerHTML = error
+      ? `<div class="notice">${escapeHtml(error.message)}</div>`
+      : `<div class="empty-state">Artiste ajouté. Recharge la page admin.</div>`;
   });
 
   qs('#adminAddRelationForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
+
     const { error } = await supabaseClient.from('song_relationships').insert({
       primary_song_id: Number(qs('#adminPrimarySong').value),
       related_song_id: Number(qs('#adminRelatedSong').value),
@@ -566,7 +626,10 @@ async function bootAdminPage() {
       notes: qs('#adminRelationNotes').value.trim() || null,
       created_by: state.session.user.id
     });
-    qs('#adminStatus').innerHTML = error ? `<div class="notice">${escapeHtml(error.message)}</div>` : `<div class="empty-state">Relation ajoutée. Recharge la page admin.</div>`;
+
+    qs('#adminStatus').innerHTML = error
+      ? `<div class="notice">${escapeHtml(error.message)}</div>`
+      : `<div class="empty-state">Relation ajoutée. Recharge la page admin.</div>`;
   });
 
   document.addEventListener('click', async (event) => {
@@ -584,7 +647,11 @@ async function bootAdminPage() {
 
     const deleteBtn = event.target.closest('.admin-song-delete');
     if (deleteBtn && confirm('Supprimer ce morceau ?')) {
-      const { error } = await supabaseClient.from('songs').delete().eq('id', deleteBtn.dataset.id);
+      const { error } = await supabaseClient
+        .from('songs')
+        .delete()
+        .eq('id', deleteBtn.dataset.id);
+
       qs('#adminStatus').innerHTML = error
         ? `<div class="notice">${escapeHtml(error.message)}</div>`
         : `<div class="empty-state">Morceau supprimé. Recharge la page admin.</div>`;
@@ -604,7 +671,11 @@ async function bootAdminPage() {
 
     const relDelete = event.target.closest('.admin-rel-delete');
     if (relDelete) {
-      const { error } = await supabaseClient.from('song_relationships').delete().eq('id', relDelete.dataset.id);
+      const { error } = await supabaseClient
+        .from('song_relationships')
+        .delete()
+        .eq('id', relDelete.dataset.id);
+
       qs('#adminStatus').innerHTML = error
         ? `<div class="notice">${escapeHtml(error.message)}</div>`
         : `<div class="empty-state">Relation supprimée. Recharge la page admin.</div>`;
@@ -634,6 +705,7 @@ async function bootAdminPage() {
 
 async function approveSubmission(submissionId) {
   const mount = qs('#adminStatus');
+
   const { data: submission, error: subError } = await supabaseClient
     .from('song_submissions')
     .select('*')
@@ -646,6 +718,7 @@ async function approveSubmission(submissionId) {
   }
 
   let artistId = submission.artist_id;
+
   if (!artistId && submission.artist_name_text) {
     const { data: existingArtist } = await supabaseClient
       .from('artists')
@@ -666,6 +739,7 @@ async function approveSubmission(submissionId) {
         mount.innerHTML = `<div class="notice">${escapeHtml(newArtistError.message)}</div>`;
         return;
       }
+
       artistId = newArtist.id;
     }
   }
