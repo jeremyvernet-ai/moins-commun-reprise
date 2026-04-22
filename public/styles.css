@@ -417,3 +417,173 @@ hr.sep{
   .hero-panel{padding:22px}
   .hero h2{font-size:46px}
 }
+@media (max-width: 768px) {
+  .container {
+    width: min(100% - 20px, 100%);
+  }
+
+  .topbar-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .brand {
+    align-items: center;
+  }
+
+  .brand-copy h1 {
+    font-size: 22px;
+  }
+
+  .brand-copy p {
+    font-size: 12px;
+  }
+
+  .nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .nav a,
+  .nav button {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+    min-height: 46px;
+  }
+
+  .hero {
+    padding: 20px 0 8px;
+  }
+
+  .hero-panel {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .hero h2 {
+    font-size: 34px;
+    line-height: 1.02;
+  }
+
+  .hero p {
+    font-size: 15px;
+  }
+
+  .page-header h2 {
+    font-size: 28px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .card {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .cover {
+    height: 190px;
+    border-radius: 16px;
+  }
+
+  .spread {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn,
+  .btn.small {
+    width: 100%;
+    min-height: 46px;
+  }
+
+  .song-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .song-side {
+    position: static;
+  }
+
+  .filter-bar,
+  .form-grid,
+  .auth-grid,
+  .kpis,
+  .admin-shell {
+    grid-template-columns: 1fr !important;
+  }
+
+  .admin-sidebar {
+    border-right: none;
+    border-bottom: 1px solid rgba(157,92,255,.16);
+    padding: 16px;
+  }
+
+  .admin-content {
+    padding: 16px;
+  }
+
+  .tablist {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .table-wrap {
+    overflow: visible;
+    border: none;
+    background: transparent;
+  }
+
+  table,
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
+    display: block;
+    width: 100%;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody {
+    display: grid;
+    gap: 12px;
+  }
+
+  tr {
+    background: linear-gradient(180deg, rgba(41,16,79,.95), rgba(23,9,46,.96));
+    border: 1px solid rgba(157,92,255,.16);
+    border-radius: 16px;
+    padding: 12px;
+  }
+
+  td {
+    border-bottom: none;
+    padding: 6px 0;
+    background: transparent;
+  }
+
+  input,
+  select,
+  textarea {
+    min-height: 46px;
+  }
+
+  textarea {
+    min-height: 110px;
+  }
+}
