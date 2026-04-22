@@ -377,6 +377,7 @@ async function bootSubmitPage() {
   const songSelect = qs('#relatedSongId');
   const artistSelect = qs('#artistId');
   const { data: songs } = await supabaseClient.from('songs').select('id, title').eq('status', 'published').order('title');
+
   songSelect.innerHTML = '<option value="">Aucune relation</option>' + (songs || []).map(s => `<option value="${s.id}">${escapeHtml(s.title)}</option>`).join('');
   artistSelect.innerHTML = '<option value="">Créer / choisir plus tard</option>' + (artists || []).map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
   qs('#relationType').innerHTML = `<option value="">Choisir un type</option>${relationshipOptions()}`;
@@ -384,6 +385,7 @@ async function bootSubmitPage() {
   qs('#submissionForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     mount.innerHTML = '';
+
     const payload = {
       title: qs('#title').value.trim(),
       artist_id: qs('#artistId').value ? Number(qs('#artistId').value) : null,
@@ -392,19 +394,27 @@ async function bootSubmitPage() {
       genre: qs('#genre').value.trim() || null,
       description: qs('#description').value.trim() || null,
       cover_url: qs('#coverUrl').value.trim() || null,
+      spotify_url: qs('#spotifyUrl')?.value.trim() || null,
+      youtube_url: qs('#youtubeUrl')?.value.trim() || null,
+      apple_music_url: qs('#appleMusicUrl')?.value.trim() || null,
+      soundcloud_url: qs('#soundcloudUrl')?.value.trim() || null,
+      preview_url: qs('#previewUrl')?.value.trim() || null,
       relation_type: qs('#relationType').value || null,
       related_song_id: qs('#relatedSongId').value ? Number(qs('#relatedSongId').value) : null
     };
+
     const { error } = await supabaseClient
       .from('song_submissions')
       .insert({
         user_id: state.session.user.id,
         ...payload
       });
+
     if (error) {
       mount.innerHTML = `<div class="notice">${escapeHtml(error.message)}</div>`;
       return;
     }
+
     mount.innerHTML = `<div class="empty-state">Proposition envoyée. Un admin peut maintenant la valider.</div>`;
     qs('#submissionForm').reset();
   });
